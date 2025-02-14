@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_homeA"
+            android:title="Home"
+            android:icon="@drawable/home"
+            />
+        <item
+            android:id="@+id/show_pedidosA"
+            android:title="Show Order"
+            android:icon="@drawable/see_pedido"
+            />
+        <item
+            android:id="@+id/invoiceA"
+            android:title="Invoice"
+            android:icon="@drawable/see_pedido"
+            />
+        <item
+        android:id="@+id/show_invoiceA"
+        android:title="Show Invoice"
+        android:icon="@drawable/see_pedido"
+            />
+        <item
+            android:id="@+id/gestion_productosA"
+            android:title="Products"
+            android:icon="@drawable/products"
+            />
+        <item
+            android:id="@+id/show_clientesA"
+            android:title="Clients"
+            android:icon="@drawable/clients"
+            />
+    </group >
+
+        <item android:title="Log">
+            <menu>
+                <group  android:checkableBehavior="single">
+                    <item
+                        android:id="@+id/logoutA"
+                        android:title="Logout"
+                        android:icon="@drawable/logout_icon"
+                        />
+                </group>
+            </menu>
+        </item>
+</menu>

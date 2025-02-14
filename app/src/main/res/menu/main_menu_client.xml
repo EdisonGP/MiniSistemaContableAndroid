@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_home"
+            android:title="Home"
+            android:icon="@drawable/home"
+            />
+        <item
+            android:id="@+id/shop_client"
+            android:title="Go to Shop"
+            android:icon="@drawable/shop_client"
+            />
+        <item
+            android:id="@+id/client_information"
+            android:title="Information"
+            android:icon="@drawable/manage_accounts"
+            />
+    </group >
+
+        <item android:title="Comunicate">
+            <menu>
+                <group  android:checkableBehavior="single">
+                <item
+                    android:id="@+id/share"
+                    android:title="Information"
+                    android:icon="@drawable/share"
+                    />
+                </group>
+            </menu>
+        </item>
+
+        <item android:title="Log">
+            <menu>
+                <group  android:checkableBehavior="single">
+                    <item
+                        android:id="@+id/logout"
+                        android:title="Logout"
+                        android:icon="@drawable/logout_icon"
+                        />
+                </group>
+            </menu>
+        </item>
+</menu>
