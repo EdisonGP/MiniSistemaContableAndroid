@@ -1,6 +1,7 @@
 package Adapter;
 
 import android.content.Context;
+import android.opengl.Visibility;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.crud_app.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import Entities.PedidoFactura;
@@ -24,6 +26,7 @@ public class ListPedidoFacturaAdapter extends RecyclerView.Adapter<ListPedidoFac
     private LayoutInflater mInflater;
     private Context contex;
     String categoria;
+    String usuario;
     final ListPedidoFacturaAdapter.OnItemClickListener listener;
     ManagerPedidoFactura gestion;
 
@@ -31,9 +34,10 @@ public class ListPedidoFacturaAdapter extends RecyclerView.Adapter<ListPedidoFac
         void OnItemClick(PedidoFactura prod);
     }
 
-   public ListPedidoFacturaAdapter(List<PedidoFactura> facturas, String categoria, ManagerPedidoFactura pf,Context contex, ListPedidoFacturaAdapter.OnItemClickListener listener) {
-        this.facturas = facturas;
+   public ListPedidoFacturaAdapter(List<PedidoFactura> facturas, String categoria,String usuario, ManagerPedidoFactura pf,Context contex, ListPedidoFacturaAdapter.OnItemClickListener listener) {
+        this.facturas = new ArrayList<>(facturas); // Convertir a ArrayList para que sea modificable
         this.categoria=categoria;
+        this.usuario=usuario;
         this.gestion=pf;
         this.mInflater = LayoutInflater.from(contex);
         this.contex = contex;
@@ -83,28 +87,57 @@ public class ListPedidoFacturaAdapter extends RecyclerView.Adapter<ListPedidoFac
         void bindData(final PedidoFactura items){
             client.setText(items.getApellidoCliente()+" "+items.getNombreCliente());
 
-            if(categoria.equals("pedido")){
-                estadoPF.setText((items.getFacturado().equals("si")) ? "facturado": "sin facturar");
-                btn.setText("Facturar");
+            if(usuario.equals("administrador")){
+                if(categoria.equals("pedido")) {
+                    estadoPF.setText((items.getFacturado().equals("si")) ? "facturado" : "sin facturar");
+                    if(items.getFacturado().equals("si")){ //Si ya estan facturados eliminar el boton de facturar
+                        btn.setVisibility(View.GONE);
+                    }else {
+                        btn.setVisibility(View.VISIBLE);
+                        btn.setText("Facturar");
+                    }
+                }else{
+                    estadoPF.setText((items.getDespachado().equals("si")) ? "despachado": "sin despachar");
+                    if(items.getDespachado().equals("si")){ //Si ya estan facturados eliminar el boton de facturar
+                        btn.setVisibility(View.GONE);
+                    }else {
+                        btn.setVisibility(View.VISIBLE);
+                        btn.setText("Despachar");
+                    }
+                }
+
             }else{
-                estadoPF.setText((items.getDespachado().equals("si")) ? "despachado": "sin despachar");
-                btn.setText("Despachar");
+                estadoPF.setText("");
+                btn.setText("Eliminar");
             }
 
             // Evento cuando se presiona el botón
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(categoria.equals("pedido")){
-                        gestion.updatePedidoFacturado(items.getId(),"si");   //Factura el pedido
-                        items.setFacturado("si"); // Actualiza el estado en la lista
-                        Toast.makeText(itemView.getContext(),"Pedido facturado correctmente", Toast.LENGTH_SHORT).show();
-                    }else{
-                        gestion.updateFacturaDespachado(items.getId(),"si"); //Despacha la factura
-                        items.setDespachado("si"); // Actualiza el estado en la lista
-                        Toast.makeText(itemView.getContext(),"Factura despachado correctmente", Toast.LENGTH_SHORT).show();
+
+                    if(usuario.equals("administrador")){ //Acciones del administrador
+                        if(categoria.equals("pedido")){
+                            gestion.updatePedidoFactura(items.getId(),"si",contex);   //Factura el pedido
+                            items.setFacturado("si"); // Actualiza el estado en la lista
+                            Toast.makeText(itemView.getContext(),"Pedido facturado correctmente", Toast.LENGTH_SHORT).show();
+                        }else{
+                            gestion.updateFacturaDespachado(items.getId(),"si"); //Despacha la factura
+                            items.setDespachado("si"); // Actualiza el estado en la lista
+                            Toast.makeText(itemView.getContext(),"Factura despachado correctmente", Toast.LENGTH_SHORT).show();
+                        }
+                        notifyItemChanged(getAdapterPosition()); // Refresca el item en la lista
+
+                    }else{ //Acciones del cliente
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            gestion.deletePedido(items.getId(),itemView.getContext());
+                            facturas.remove(position); // Eliminar de la lista en el Adapter
+                            notifyItemRemoved(position); // Notificar eliminación
+                            notifyItemRangeChanged(position, facturas.size()); // Actualizar la vista
+                            Toast.makeText(itemView.getContext(), "Pedido eliminado", Toast.LENGTH_SHORT).show();
+                        }
                     }
-                    notifyItemChanged(getAdapterPosition()); // Refresca el item en la lista
                 }
             });
 

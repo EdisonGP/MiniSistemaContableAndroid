@@ -1,5 +1,4 @@
-package Adapter;
-
+package  Adapter;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -84,13 +83,44 @@ public class ListProductoAdapter extends RecyclerView.Adapter<ListProductoAdapte
             status.setText(isBuying ? (items.getStatus().equals("true")) ? "disponible" : "no disponible": "Stock: "+String.valueOf(items.getStock()) );
             iconImage.setImageResource(isBuying ? R.drawable.shopping_cart : R.drawable.swipe_up_fill0_wght400_grad0_opsz48);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    listener.OnItemClick(items);
-                }
-            });
+
+            // Verificar si el producto está disponible
+            boolean isAvailable = items.getStatus().equals("true");
+
+            if (isBuying) {        // Si está comprando y el producto no está disponible
+               if(!isAvailable) {
+                   cv2.setAlpha(0.5f); // Hacer el card más transparente
+                   description.setTextColor(Color.GRAY);
+                   price.setTextColor(Color.GRAY);
+                   status.setTextColor(Color.GRAY);
+
+                   // Deshabilitar el click para productos no disponibles
+                   itemView.setClickable(false);
+                   itemView.setOnClickListener(null);
+
+               }else{
+                   // Configurar el click listener solo para productos disponibles
+                   itemView.setOnClickListener(new View.OnClickListener() {
+                       @Override
+                       public void onClick(View view) {
+                           listener.OnItemClick(items);
+                       }
+                   });
+               }
+            } else { //Ver lista de productos desde administrador
+                cv2.setAlpha(1.0f);
+                description.setTextColor(Color.BLACK);
+                price.setTextColor(Color.BLACK);
+                int stock=Integer.parseInt(items.getStock());
+                status.setTextColor(stock > 5 ? Color.GREEN : Color.RED);
+
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        listener.OnItemClick(items);
+                    }
+                });
+            }
         }
     }
 }
-

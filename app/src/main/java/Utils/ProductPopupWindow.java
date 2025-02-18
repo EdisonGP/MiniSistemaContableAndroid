@@ -1,4 +1,4 @@
-package com.example.crud_app;
+package Utils;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -18,11 +18,10 @@ import android.view.Display;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import Entities.Producto;
 
-class ProductPopupWindow {
+public class ProductPopupWindow {
     private Context context;
     private PopupWindow popupWindow;
     private Producto currentProduct; // null para Creacion e inicializado para Actualizacion
@@ -159,7 +158,7 @@ class ProductPopupWindow {
                     // Actualizar producto existente
                     currentProduct.setDescripcion(descriptionInput.getText().toString());
                     currentProduct.setStock(stockInput.getText().toString());
-                    currentProduct.setStatus(String.valueOf( isProductAvailable));
+                    currentProduct.setStatus( (Integer.parseInt(stockInput.getText().toString())==0) ? "false" : String.valueOf( isProductAvailable) );
                     currentProduct.setPrice(priceInput.getText().toString());
                     product = currentProduct;
                     actionType = ActionType.UPDATE;

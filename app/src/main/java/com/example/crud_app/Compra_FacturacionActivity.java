@@ -40,26 +40,28 @@ import Entities.DetallePedidoFactura;
 import Entities.Producto;
 
 public class Compra_FacturacionActivity extends AppCompatActivity {
-    ManagerProductos mProducto;
-    ManagerPedidoFactura mPedidoFactura;
-    ManagerDetallePedidoFactura mDetalle;
+    static ManagerProductos mProducto;
+    static ManagerPedidoFactura mPedidoFactura;
+    static ManagerDetallePedidoFactura mDetalle;
     ManagerUser mUsuario;
     List<Producto> listaProd;
-    List<DetallePedidoFactura> productosFacturaDetalle;
+    static List<DetallePedidoFactura> productosFacturaDetalle;
     ListProductoAdapter listAdapter;
     SearchView searchView;
     Spinner spinner;
     //AutoCompleteTextView spinner ;
     Button btnGuardarPedido_Factura,btnCancelarPedido_Factura,btnDetallePedido_Factura;
-    TextView txtSubtotalValue,txtIvaValue,txtTotalValue;
-    double totalFactura;
-    double totalIva;
+    static TextView txtSubtotalValue;
+    static TextView txtIvaValue;
+    static TextView txtTotalValue;
+    static double totalFactura;
+    static double totalIva;
     int cant,idProducto;
-    boolean productosSeleccionadoParaFactura;
+    static boolean productosSeleccionadoParaFactura;
     String idUsuario;
     boolean isAdmin;
     User clienteSeleccionado;
-    long idFactura ; // Variable para almacenar el ID
+    static long idFactura ; // Variable para almacenar el ID
 
 
     @Override
@@ -107,11 +109,13 @@ public class Compra_FacturacionActivity extends AppCompatActivity {
 
         if(isAdmin) {
             initClient(); //Llama a método listar clientes
+            btnGuardarPedido_Factura.setText("SAVE");
         }else{
             //Ocultado Vistas de seleccion de cliente utilizado en facturacion desde Administracion
             TextView textView = findViewById(R.id.textSelectClient);
             textView.setVisibility(View.GONE);
             spinner.setVisibility(View.GONE);
+            btnGuardarPedido_Factura.setText("NEXT");
         }
 
         //Recibe los parámetros de regreso desde el Detalle
@@ -128,11 +132,19 @@ public class Compra_FacturacionActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                     if (isAdmin) { //Genera factura
-                        saveFacturaPedido(clienteSeleccionado.getIdUsuario(), "factura", "Factura guardada");    //Guarda factura generado por el vendedor
+                        saveFacturaPedido(getBaseContext(),clienteSeleccionado.getIdUsuario(), "factura", "Factura guardada");    //Guarda factura generado por el vendedor
+                        Intent intento = new Intent(getBaseContext(), AdminShowPedidoFacturaActivity.class);
+                        startActivity(intento);
 
-                    } else { //Genera Pedido
+                    } else { //Genera Pedido,pero antes debe ir a realizar el pago
                         SharedPreferences pref= getSharedPreferences("datos", Context.MODE_PRIVATE);//Obtengo al cliente logeado
-                        saveFacturaPedido(Integer.parseInt(pref.getString("idUser","")), "pedido", "Pedido guardado");    //Guarda pedido generado por el vendedor
+                        Intent intent = new Intent(Compra_FacturacionActivity.this, PagoActivity.class);
+                        intent.putExtra("clientId", pref.getString("idUser",""));
+                        intent.putExtra("clientCedula", pref.getString("cedulaUser",""));
+                        intent.putExtra("clientName", pref.getString("nombreUser",""));
+                        intent.putExtra("clientApellido", pref.getString("apellidoUser",""));
+                        intent.putExtra("totalAmount",totalFactura);
+                        startActivity(intent);
                     }
             }
         });
@@ -261,13 +273,21 @@ public class Compra_FacturacionActivity extends AppCompatActivity {
         btnSeleccionarProducto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                cant=Integer.parseInt(cantidad.getText().toString());
-                double subtotal=Math.round((cant*Double.parseDouble(p.getPrice())) * 100.0) / 100.0;
-                productosFacturaDetalle.add(new DetallePedidoFactura(idProducto,p.getDescripcion(),cant,String.valueOf(subtotal)));
-                productosSeleccionadoParaFactura=true;
-                ad.dismiss();
-                mostrarCamposCalculados(productosFacturaDetalle);
-                Toast.makeText(getBaseContext(), "Producto seleccionado", Toast.LENGTH_SHORT).show();
+                cant = Integer.parseInt(cantidad.getText().toString());
+                Producto producto = mProducto.getProducto(idProducto);
+
+                if ((Integer.parseInt(producto.getStock()) - cant) >= 0) { //Verifica que alcance los productos solicitados
+                    double subtotal = Math.round((cant * Double.parseDouble(p.getPrice())) * 100.0) / 100.0;
+                    productosFacturaDetalle.add(new DetallePedidoFactura(idProducto, p.getDescripcion(), cant, String.valueOf(subtotal)));
+                    productosSeleccionadoParaFactura = true;
+                    ad.dismiss();
+                    mostrarCamposCalculados(productosFacturaDetalle);
+                    Toast.makeText(getBaseContext(), "Producto seleccionado", Toast.LENGTH_SHORT).show();
+
+                }else{
+                    int stockDisponible=Integer.parseInt(producto.getStock())-0;
+                    Toast.makeText(getBaseContext(), "Producto insuficiente, puedes escoger solamente "+stockDisponible+" productos", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -296,11 +316,11 @@ public class Compra_FacturacionActivity extends AppCompatActivity {
         totalIva=Math.round(((iva)) * 100.0) / 100.0;
         totalFactura=Math.round(((subTotal+iva)) * 100.0) / 100.0;
         txtSubtotalValue.setText(Math.round(((subTotal)) * 100.0) / 100.0+"");
-        txtIvaValue.setText(iva+"");
+        txtIvaValue.setText(totalIva+"");
         txtTotalValue.setText(totalFactura+"");
     }
 
-    public void LimpiarCampos(){
+    public static void LimpiarCampos(){
         productosFacturaDetalle=new ArrayList<>();
         totalFactura = 0;
         totalIva = 0;
@@ -309,28 +329,27 @@ public class Compra_FacturacionActivity extends AppCompatActivity {
         txtTotalValue.setText("");
     }
 
-    private void saveFacturaPedido(int idCliente,String categoria,String sms){
+    public static void saveFacturaPedido(Context context, int idCliente, String categoria, String sms){
         if (productosSeleccionadoParaFactura) { //Valida antes de guardar que haya un producto seleccionado
             String fechaCadena = new SimpleDateFormat("dd-MM-yyyy").format(new Date());         //Obtener la fecha actual del sistema
             idFactura = mPedidoFactura.insertPedidoFactura(String.valueOf(idCliente), "", String.valueOf(totalFactura), String.valueOf(totalIva), fechaCadena, categoria);
 
             if (idFactura != -1) {
                 mDetalle.insertPedidoFacturaDetalle(productosFacturaDetalle, idFactura);      //Guardar Detalle
-                mProducto.updateStockProducto(productosFacturaDetalle);    //Reducir Stock
+                mProducto.updateStockProducto(productosFacturaDetalle,"reduce");    //Reducir Stock
                 productosSeleccionadoParaFactura = false;     //Cambia de estado para que nuevamente seleccione productos para otra factura o pedido
-                Toast.makeText(getBaseContext(), sms, Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, sms, Toast.LENGTH_SHORT).show();
                 LimpiarCampos();      //Limpieza de datos
-
-                Intent intento = new Intent(Compra_FacturacionActivity.this, AdminShowPedidoFacturaActivity.class);
-                startActivity(intento);
             }
         }else{
-            Toast.makeText(getBaseContext(), "Debes seleccionar algún producto", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Debes seleccionar algún producto", Toast.LENGTH_SHORT).show();
         }
     }
+
     @Override
     public void onBackPressed() {
-        Intent intento =new Intent(Compra_FacturacionActivity.this, MenuActivity.class);
+        super.onBackPressed();
+        Intent intento = new Intent(Compra_FacturacionActivity.this, MenuActivity.class);
         startActivity(intento);
     }
 

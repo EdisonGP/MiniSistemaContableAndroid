@@ -19,7 +19,7 @@ public class AdminSQLiteOpenHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("CREATE TABLE producto(id_producto INTEGER PRIMARY KEY AUTOINCREMENT, descripcion text(20),stock text(4) ,status text (5),estado text (5),price text(10))");
         sqLiteDatabase.execSQL("CREATE TABLE pedido_factura(id_pedido_factura INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "id_cliente int," + //Cliente que va a realizar la compra
-                "id_usuario int,"+  //Usuario que genera la factura
+                "id_usuario int,"+  //Usuario que genera la factura ?
                 "total text,"+
                 "iva text(10),"+
                 "fecha text(10)," +

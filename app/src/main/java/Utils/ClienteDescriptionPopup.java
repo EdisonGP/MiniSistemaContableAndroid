@@ -1,4 +1,4 @@
-package com.example.crud_app;
+package Utils;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 import Entities.User;
 
-class ClienteDescriptionPopup {
+public class ClienteDescriptionPopup {
     private Context context;
     private PopupWindow popupWindow;
     private User currentClient;

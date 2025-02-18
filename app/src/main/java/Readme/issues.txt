@@ -1,0 +1,2 @@
+* No funciona el boton facturar pedidos, (Adapter/ListPedidoFacturaAdapter.java)
+* No reduce stock cuando elimina el cliente el pedido (Adapter/ListPedidoFacturaAdapter.java) Acciones del cliente

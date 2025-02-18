@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import Adapter.ListDetallePedAdapter;
-import Entities.User;
 import Manager.ManagerPedidoFactura;
 import Manager.ManagerUser;
 import Manager.ManagerDetallePedidoFactura;
@@ -32,7 +31,7 @@ import Entities.DetallePedidoFactura;
 import Entities.PedidoFactura;
 
 
-public class VerDetallePedidoFacturaActivity extends AppCompatActivity implements Serializable,BottomNavigationView.OnNavigationItemSelectedListener{
+public class VerDetallePedidoFacturaActivity extends AppCompatActivity implements Serializable{
     TextView txtNumPedidoFactura,txtFecha,txtCliente,txtCedulaCli,txtSubtotal,txtIva,txtTotal, btnEliminarDet;
     ManagerPedidoFactura mPedidoFactura;
     ManagerDetallePedidoFactura mDetalle;
@@ -86,6 +85,7 @@ public class VerDetallePedidoFacturaActivity extends AppCompatActivity implement
             SharedPreferences pref= getSharedPreferences("datos", Context.MODE_PRIVATE);
             mostrarDatosClientes((pref.getString("apellidoUser","")+" "+pref.getString("nombreUser","")),pref.getString("cedulaUser",""));
             txtNumPedidoFactura.setText("Num Pedido:  "+"0"); //Contar las facturas de este cliente
+
             Bundle bundle = new Bundle();
             bundle = getIntent().getBundleExtra("lista");
             detalle = (List<DetallePedidoFactura>) bundle.getSerializable("detalle"); //Obtener el detalle de pedido.
@@ -97,6 +97,7 @@ public class VerDetallePedidoFacturaActivity extends AppCompatActivity implement
             String cedula = partes.length > 1 ? partes[1] : "";
             txtNumPedidoFactura.setText("Num Factura:  "+bb.getString("idFactura"));
             mostrarDatosClientes(cli,cedula);
+
             Bundle bundle = new Bundle();
             bundle = getIntent().getBundleExtra("lista");
             detalle = (List<DetallePedidoFactura>) bundle.getSerializable("detalle"); //Obtener el detalle de factura.
@@ -107,7 +108,7 @@ public class VerDetallePedidoFacturaActivity extends AppCompatActivity implement
             int idFactura=Integer.parseInt(bb.getString("id"));
             txtNumPedidoFactura.setText("Num Factura:  "+idFactura);
             PedidoFactura pf=mPedidoFactura.getPedidoFactura(idFactura,"factura");
-            Toast.makeText(this,"PF. "+pf.getNombreCliente(),Toast.LENGTH_SHORT).show();
+
             mostrarDatosClientes(pf.getApellidoCliente()+" "+pf.getNombreCliente(),pf.getCedulaCliente());
             DetallePedidoFactura[] detalle = mDetalle.getPedidoFacturaDetalle(idFactura);
             List<DetallePedidoFactura> detalleA=Arrays.asList(detalle);
@@ -119,7 +120,7 @@ public class VerDetallePedidoFacturaActivity extends AppCompatActivity implement
         listDetalle= new ArrayList<>();
        if(detalle!=null) {
             listDetalle= detalle;
-            listAdapter = new ListDetallePedAdapter(0,listDetalle, this, new ListDetallePedAdapter.OnItemClickListener() {
+            listAdapter = new ListDetallePedAdapter(Integer.parseInt(opcion),listDetalle, this, new ListDetallePedAdapter.OnItemClickListener() {
 
                 @Override
                 public void OnItemClick(DetallePedidoFactura det, int pos) {
@@ -167,14 +168,17 @@ public class VerDetallePedidoFacturaActivity extends AppCompatActivity implement
         txtCliente.setText(cliente);
         txtCedulaCli.setText(cedula);
     }
+
     @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+    public void onBackPressed() {
+        super.onBackPressed();
+
         if(opcion.equals("0")){ //Debe regresar a pedidos en la cuenta de administrador
             Intent intento = new Intent(VerDetallePedidoFacturaActivity.this, AdminShowPedidoFacturaActivity.class);
             startActivity(intento);
 
         }else if(opcion.equals("1")){ //Debe regresar a realizar campra en la cuenta de cliente
-            List<DetallePedidoFactura> ped = listAdapter.getPedidoDetalles();
+            List<DetallePedidoFactura> ped = detalle;
             Intent intento = new Intent(VerDetallePedidoFacturaActivity.this, Compra_FacturacionActivity.class);
             Bundle bundle = new Bundle();
             ArrayList<DetallePedidoFactura> lista = new ArrayList<>();
@@ -187,7 +191,7 @@ public class VerDetallePedidoFacturaActivity extends AppCompatActivity implement
             startActivity(intento);
 
         }else if (opcion.equals("2")){ //Debe regresar a realizar facturación en la cuenta de administrador
-            List<DetallePedidoFactura> ped = listAdapter.getPedidoDetalles();
+            List<DetallePedidoFactura> ped = detalle;
             Intent intento = new Intent(VerDetallePedidoFacturaActivity.this, Compra_FacturacionActivity.class);
             Bundle bundle = new Bundle();
             ArrayList<DetallePedidoFactura> lista = new ArrayList<>();
@@ -203,7 +207,7 @@ public class VerDetallePedidoFacturaActivity extends AppCompatActivity implement
             Intent intento = new Intent(VerDetallePedidoFacturaActivity.this, AdminShowPedidoFacturaActivity.class);
             startActivity(intento);
         }
-        return false;
+
     }
 
 }

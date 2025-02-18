@@ -15,6 +15,7 @@ import java.util.List;
 import Adapter.ListClientesAdapter;
 import Entities.User;
 import Manager.ManagerUser;
+import Utils.ClienteDescriptionPopup;
 
 public class AdminShowClientsActivity extends AppCompatActivity{
     ManagerUser crud;

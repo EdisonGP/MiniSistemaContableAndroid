@@ -12,6 +12,11 @@
             android:icon="@drawable/shop_client"
             />
         <item
+            android:id="@+id/showPedidosCli"
+            android:title="Orders Placed"
+            android:icon="@drawable/shop_client"
+            />
+        <item
             android:id="@+id/client_information"
             android:title="Information"
             android:icon="@drawable/manage_accounts"

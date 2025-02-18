@@ -80,6 +80,7 @@ public class MenuActivity extends AppCompatActivity implements NavigationView.On
                 case R.id.show_pedidosA:
                     Intent intento1 = new Intent(this, AdminShowPedidoFacturaActivity.class);
                     intento1.putExtra("categoria", "pedido");
+                    intento1.putExtra("usuario", "administrador");
                     startActivity(intento1);
                     break;
                 case R.id.invoiceA:
@@ -90,6 +91,7 @@ public class MenuActivity extends AppCompatActivity implements NavigationView.On
                 case R.id.show_invoiceA:
                     Intent intento3 = new Intent(this, AdminShowPedidoFacturaActivity.class);
                     intento3.putExtra("categoria", "factura");
+                    intento3.putExtra("usuario", "administrador");
                     startActivity(intento3);
                     break;
                 case R.id.gestion_productosA:
@@ -110,6 +112,12 @@ public class MenuActivity extends AppCompatActivity implements NavigationView.On
                     Intent intento1 = new Intent(this, Compra_FacturacionActivity.class);
                     intento1.putExtra("base", "menu");
                     startActivity(intento1);
+                    break;
+                case R.id.showPedidosCli:
+                    Intent intento2 = new Intent(this, AdminShowPedidoFacturaActivity.class);
+                    intento2.putExtra("categoria", "pedido");
+                    intento2.putExtra("usuario", "cliente"); //Utilizado para listar los pedidos del cliente
+                    startActivity(intento2);
                     break;
                 case R.id.client_information:
                     startActivity(new Intent(this, ClientInformationActivity.class));

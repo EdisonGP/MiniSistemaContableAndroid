@@ -1,6 +1,7 @@
 package Adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -73,7 +74,8 @@ public class ListDetallePedAdapter extends RecyclerView.Adapter<ListDetallePedAd
         }
 
         void bindData(final DetallePedidoFactura items, int position){
-            eliminar.setVisibility((opcion==0) ? View.GONE : View.VISIBLE);
+            eliminar.setBackgroundColor(Color.parseColor("#F91F1C"));
+            eliminar.setVisibility((opcion==1 || opcion==2) ? View.VISIBLE : View.GONE);
             descripcion.setText(items.getDescripcionProducto());
             cantidad.setText(items.getCantidad()+"");
             subtotal.setText(items.getSubtotal());

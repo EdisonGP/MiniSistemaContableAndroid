@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -80,21 +81,49 @@ public class ManagerProductos {
         db.close();
         return true;
     }
-    public boolean updateStockProducto(List<DetallePedidoFactura> det){
-        db=adsql.getWritableDatabase();
+    public boolean updateStockProducto(List<DetallePedidoFactura> detalles, String operacion) {
+        db = adsql.getWritableDatabase();
 
-        for (int i = 0; i < det.size(); i++) {
-            int cantidad=det.get(i).getCantidad();
-            Producto prod=getProducto(det.get(i).getIdProducto());
-            int stockActual=Integer.parseInt(prod.getStock());
-            String[] param = new String[2];
-            param[0]=String.valueOf(stockActual-cantidad);
-            param[1]=String.valueOf(det.get(i).getIdProducto());
-            db.execSQL("UPDATE producto SET stock=? WHERE id_producto=?",param);
+        for (DetallePedidoFactura det : detalles) {
+            Producto prod = getProducto(det.getIdProducto());
+            int stockActual = Integer.parseInt(prod.getStock()); //Linea de error
+            int nuevoStock;
+
+            // Determinar si se suma o se resta stock
+            if (operacion.equals("aumento")) {
+                nuevoStock = stockActual + det.getCantidad();
+            } else if (operacion.equals("reduce")) {
+                nuevoStock = stockActual - det.getCantidad();
+            } else {
+                db.close();
+                return false;
+            }
+
+            // Actualizar el stock del producto
+            ContentValues values = new ContentValues();
+            values.put("stock", nuevoStock);
+            db.update("producto", values, "id_producto=?", new String[]{String.valueOf(det.getIdProducto())});
+
+            // Si el stock llega a 0, cambiar disponibilidad
+            if (nuevoStock == 0 && operacion.equals("reduce")) {
+                ContentValues values2 = new ContentValues();
+                values2.put("status", "false");
+                db.update("producto", values2, "id_producto=?", new String[]{String.valueOf(det.getIdProducto())});
+            }
+            // Si se repone stock, cambiar disponibilidad a "true"
+            if (nuevoStock > 0 && operacion.equals("aumento")) {
+                ContentValues values2 = new ContentValues();
+                values2.put("status", "true");
+                db.update("producto", values2, "id_producto=?", new String[]{String.valueOf(det.getIdProducto())});
+            }
         }
+
         db.close();
         return true;
     }
+
+
+
     public Producto getProducto(int id){
         db=adsql.getReadableDatabase();
         Cursor cursor=db.rawQuery("SELECT * FROM producto WHERE id_producto="+id,null);
@@ -112,4 +141,5 @@ public class ManagerProductos {
             return p;
         }
     }
+
 }
