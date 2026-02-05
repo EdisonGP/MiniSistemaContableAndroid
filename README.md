@@ -64,15 +64,20 @@
 
 ---
 
-## 📜 Documentación
+##  Documentación
 
 Para obtener más detalles y guiarte a través del proyecto, descarga el [Manual de Usuario](public/Guaichico_Informe_Sistema_Pedidos-49-73.pdf) 📄.
 
 ---
 
-## 📜 Licencia
+##  Licencia
 
-Este proyecto está bajo la licencia **MIT**.
+Este proyecto está licenciado bajo la **MIT License** - consulta el archivo [LICENSE](LICENSE) para más detalles.
+
+---
+
+**Desarrollado por Edison Guaichico** - [Perfil de GitHub](https://github.com/EdisonGP)
+
 
 
 
